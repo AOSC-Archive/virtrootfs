@@ -1,6 +1,4 @@
-#define FUSE_USE_VERSION 26
-
-#include <fuse/fuse.h>
+#include "vr_fuse.h"
 #include "vr_ops.h"
 
 static struct fuse_operations vr_ops = {
