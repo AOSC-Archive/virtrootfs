@@ -8,6 +8,8 @@ aux_source_directory(
 )
 set(VIRTROOTFS_SRCS ${DIR_SRCS})
 
+add_definitions(-D_FILE_OFFSET_BITS=64)
+
 add_executable(virtrootfs ${DIR_SRCS})
 
 if(NOT FORCE_SHARED)
