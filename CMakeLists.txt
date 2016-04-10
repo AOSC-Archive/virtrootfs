@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 project(virtrootfs)
 
-option(STATIC_BUILD "Build with a static version of Qt" ON)
+option(STATIC_BUILD "Build a static version" ON)
 if(${STATIC_BUILD})
 set(CMAKE_EXE_LINKER_FLAGS "-static")
 endif()
