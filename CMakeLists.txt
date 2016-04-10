@@ -1,24 +1,23 @@
+cmake_minimum_required(VERSION 3.0)
 project(virtrootfs)
-cmake_minimum_required(VERSION 3.5)
-include_directories(
-	include
-)
-aux_source_directory(
-	src DIR_SRCS
-)
-set(VIRTROOTFS_SRCS ${DIR_SRCS})
 
-add_definitions(-D_FILE_OFFSET_BITS=64)
+option(STATIC_BUILD "Build with a static version of Qt" ON)
+if(${STATIC_BUILD})
+set(CMAKE_EXE_LINKER_FLAGS "-static")
+endif()
 
-add_executable(virtrootfs ${DIR_SRCS})
+file(GLOB_RECURSE VRFS_SRC RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "src/*.c" "src/*.h")
+add_executable(virtrootfs ${VRFS_SRC})
+set_target_properties(virtrootfs PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-if(NOT FORCE_SHARED)
-set(BUILD_SHARED_LIBS OFF)
-set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
-set_target_properties(virtrootfs PROPERTIES LINK_SEARCH_END_STATIC 1)
-set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
-else(NOT FORCE_SHARED)
-message( "You are trying to build a dynamically-linked virtrootfs, this is only for debug purpose" )
-message( "and should *NOT* be used in production environment!" )
-endif(NOT FORCE_SHARED)
-target_link_libraries(virtrootfs fuse)
+
+add_library(bstrlib STATIC "lib/bstrlib/bsafe.c" "lib/bstrlib/bstraux.c" "lib/bstrlib/bstrlib.c" "lib/bstrlib/buniutil.c" "lib/bstrlib/utf8util.c")
+target_include_directories(bstrlib INTERFACE "lib/bstrlib")
+set_target_properties(bstrlib PROPERTIES POSITION_INDEPENDENT_CODE ON)
+target_link_libraries(virtrootfs PRIVATE bstrlib)
+
+include(FindPkgConfig)
+pkg_search_module(FUSE REQUIRED fuse)
+target_compile_options(virtrootfs PRIVATE ${FUSE_CFLAGS})
+target_include_directories(virtrootfs PRIVATE ${FUSE_STATIC_INCLUDE_DIRS})
+target_link_libraries(virtrootfs PRIVATE ${FUSE_STATIC_LIBRARIES})
