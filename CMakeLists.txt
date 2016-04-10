@@ -10,12 +10,13 @@ file(GLOB_RECURSE VRFS_SRC RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "src/*.c" "src
 add_executable(virtrootfs ${VRFS_SRC})
 set_target_properties(virtrootfs PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-
+# Link to bstrlib
 add_library(bstrlib STATIC "lib/bstrlib/bsafe.c" "lib/bstrlib/bstraux.c" "lib/bstrlib/bstrlib.c" "lib/bstrlib/buniutil.c" "lib/bstrlib/utf8util.c")
 target_include_directories(bstrlib INTERFACE "lib/bstrlib")
 set_target_properties(bstrlib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_link_libraries(virtrootfs PRIVATE bstrlib)
 
+# Link to libfuse
 include(FindPkgConfig)
 pkg_search_module(FUSE REQUIRED fuse)
 target_compile_options(virtrootfs PRIVATE ${FUSE_CFLAGS})
