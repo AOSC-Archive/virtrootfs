@@ -18,8 +18,7 @@
 */
 
 #include "virtrootfs.h"
-#include <fuse.h>
-#include <fuse_lowlevel.h>
+#include "vrfs_ops.h"
 
 static const struct fuse_lowlevel_ops vrfs_ops = {
     .opendir    = vrfs_opendir,

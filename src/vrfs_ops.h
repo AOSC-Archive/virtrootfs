@@ -19,6 +19,6 @@
 
 #pragma once
 
-#define FUSE_USE_VERSION 29
-#include <fuse.h>
-#include <fuse_lowlevel.h>
+// TODO: add functions here
+
+void vrfs_opendir(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi);
