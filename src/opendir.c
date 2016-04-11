@@ -17,10 +17,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
-
-#define FUSE_USE_VERSION 30
+#include "virtrootfs.h"
 #include <fuse.h>
 #include <fuse_lowlevel.h>
 
-void vrfs_opendir(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi);
+void vrfs_opendir(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi) {
+}

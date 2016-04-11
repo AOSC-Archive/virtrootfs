@@ -21,7 +21,9 @@
 #include <fuse.h>
 #include <fuse_lowlevel.h>
 
-struct fuse_lowlevel_ops vrfs_ops;
+static const struct fuse_lowlevel_ops vrfs_ops = {
+    .opendir    = vrfs_opendir,
+};
 
 int main(int argc, char *argv[]) {
     struct fuse_args args = FUSE_ARGS_INIT(argc, argv);
