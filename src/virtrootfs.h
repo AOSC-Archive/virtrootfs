@@ -23,9 +23,15 @@
 #include <fuse.h>
 
 struct vrfs_data {
-    char *index_path;
-    char *pool_path;
+    const char *index_path;
+    const char *pool_path;
 };
 
+void *vrfs_init(struct fuse_conn_info *conn);
 int vrfs_getattr(const char *path, struct stat *stbuf);
 int vrfs_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t off, struct fuse_file_info *fi);
+
+void vrfs_assert_failed(const char *expr, const char *file, unsigned int line);
+#ifndef vrfs_assert
+#define vrfs_assert(expr) ((expr) ? (void) 0 : vrfs_assert_failed(#expr, __FILE__, __LINE__))
+#endif

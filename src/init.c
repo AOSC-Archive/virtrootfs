@@ -18,27 +18,20 @@
 */
 
 #include "virtrootfs.h"
+#include <dirent.h>
 #include <stddef.h>
-#include <string.h>
+#include <unistd.h>
+#include <bstrlib.h>
 #include <fuse.h>
 
-#define VRFS_OPT(t, p, v) { t, offsetof(struct vrfs_data, p), v }
-
-static const struct fuse_opt vrfs_opts[] = {
-    VRFS_OPT("index=%s", index_path, 0),
-    VRFS_OPT("pool=%s", pool_path, 0),
-    FUSE_OPT_END
-};
-
-static const struct fuse_operations vrfs_ops = {
-    .init       = vrfs_init,
-    .getattr    = vrfs_getattr,
-    .readdir    = vrfs_readdir,
-};
-
-int main(int argc, char *argv[]) {
-    struct fuse_args args = FUSE_ARGS_INIT(argc, argv);
-    struct vrfs_data data = {};
-    fuse_opt_parse(&args, &data, vrfs_opts, NULL);
-    return fuse_main(argc, argv, &vrfs_ops, &data);
+void *vrfs_init(struct fuse_conn_info *conn) {
+    const struct fuse_context *context = fuse_get_context();
+    struct vrfs_data *data  = context->private_data;
+    if(!data->index_path) {
+        data->index_path = "/var/lib/auch/index";
+    }
+    if(!data->pool_path) {
+        data->pool_path = "/var/lib/auch/packages";
+    }
+    return data;
 }

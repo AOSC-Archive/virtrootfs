@@ -17,28 +17,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "virtrootfs.h"
-#include <stddef.h>
-#include <string.h>
-#include <fuse.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-#define VRFS_OPT(t, p, v) { t, offsetof(struct vrfs_data, p), v }
-
-static const struct fuse_opt vrfs_opts[] = {
-    VRFS_OPT("index=%s", index_path, 0),
-    VRFS_OPT("pool=%s", pool_path, 0),
-    FUSE_OPT_END
-};
-
-static const struct fuse_operations vrfs_ops = {
-    .init       = vrfs_init,
-    .getattr    = vrfs_getattr,
-    .readdir    = vrfs_readdir,
-};
-
-int main(int argc, char *argv[]) {
-    struct fuse_args args = FUSE_ARGS_INIT(argc, argv);
-    struct vrfs_data data = {};
-    fuse_opt_parse(&args, &data, vrfs_opts, NULL);
-    return fuse_main(argc, argv, &vrfs_ops, &data);
+// Called by macro vrfs_assert
+void vrfs_assert_failed(const char *expr, const char *file, unsigned int line) {
+    fprintf(stderr, "ERROR: (%s:%u) Assertion failed: %s\n", file, line, expr);
+    abort();
 }

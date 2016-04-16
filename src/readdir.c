@@ -19,15 +19,48 @@
 
 #include "virtrootfs.h"
 #include <dirent.h>
+#include <errno.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <bstrlib.h>
 #include <fuse.h>
 
 int vrfs_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t off, struct fuse_file_info *fi) {
-    struct fuse_context *context = fuse_get_context();
-    struct vrfs_data *data  = context->private_data;
-    filler(buf, ".", NULL, 0);
-    filler(buf, "..", NULL, 0);
+    const struct fuse_context *context = fuse_get_context();
+    const struct vrfs_data *data  = context->private_data;
+    DIR *dir;
+    int err = 0;
+    {
+        bstring index_path;
+        vrfs_assert(bassigncstr(index_path, data->index_path) != BSTR_ERR);
+        if(path[0] != '/') {
+            vrfs_assert(bcatblk(index_path, "/", 1) != BSTR_ERR);
+        }
+        vrfs_assert(bcatcstr(index_path, path) != BSTR_ERR);
+        {
+            char *c_index_path = bstr2cstr(index_path, ' ');
+            vrfs_assert(index_path != NULL);
+            dir = opendir(c_index_path);
+            if(!dir) {
+                err = errno;
+            }
+            bcstrfree(c_index_path);
+        }
+        bdestroy(index_path);
+    }
+    if(!dir) {
+        return -err;
+    }
+    for(;;) {
+        const struct dirent *dir_entry = readdir(dir);
+        if(!dir_entry) {
+            break;
+        }
+        filler(buf, dir_entry->d_name, NULL, 0);
+    }
+    if(dir) {
+        closedir(dir);
+    }
     return 0;
 }

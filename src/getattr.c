@@ -20,6 +20,7 @@
 #include "virtrootfs.h"
 #include <errno.h>
 #include <stddef.h>
+#include <string.h>
 #include <fuse.h>
 
 int vrfs_getattr(const char *path, struct stat *stbuf) {
@@ -28,7 +29,8 @@ int vrfs_getattr(const char *path, struct stat *stbuf) {
         stbuf->st_mode = S_IFDIR | 0755;
         stbuf->st_nlink = 2;
     } else {
-        return -ENOENT;
+        stbuf->st_mode = S_IFDIR | 0644;
+        stbuf->st_nlink = 1;
     }
     return 0;
 }
