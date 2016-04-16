@@ -1,6 +1,6 @@
 /*
     Anthon Uniform Configuration Helper
-    Copyright (C) 2016 StarBrilliant <m13253@hotmail.com
+    Copyright (C) 2016 StarBrilliant <m13253@hotmail.com>
     Copyright (C) 2016 Icenowy
 
     This program is free software: you can redistribute it and/or modify
@@ -18,8 +18,17 @@
 */
 
 #include "virtrootfs.h"
+#include <errno.h>
+#include <stddef.h>
 #include <fuse.h>
-#include <fuse_lowlevel.h>
 
-void vrfs_opendir(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi) {
+int vrfs_getattr(const char *path, struct stat *stbuf) {
+    memset(stbuf, 0, sizeof *stbuf);
+    if(strcmp(path, "/") == 0) {
+        stbuf->st_mode = S_IFDIR | 0755;
+        stbuf->st_nlink = 2;
+    } else {
+        return -ENOENT;
+    }
+    return 0;
 }

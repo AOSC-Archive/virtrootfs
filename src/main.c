@@ -1,6 +1,6 @@
 /*
     Anthon Uniform Configuration Helper
-    Copyright (C) 2016 StarBrilliant <m13253@hotmail.com
+    Copyright (C) 2016 StarBrilliant <m13253@hotmail.com>
     Copyright (C) 2016 Icenowy
 
     This program is free software: you can redistribute it and/or modify
@@ -18,36 +18,26 @@
 */
 
 #include "virtrootfs.h"
-#include "vrfs_ops.h"
+#include <stddef.h>
+#include <string.h>
+#include <fuse.h>
 
-static const struct fuse_lowlevel_ops vrfs_ops = {
-    .opendir    = vrfs_opendir,
+#define VRFS_OPT(t, p, v) { t, offsetof(struct vrfs_data, p), v }
+
+static const struct fuse_opt vrfs_opts[] = {
+    VRFS_OPT("index=%s", index_path, 0),
+    VRFS_OPT("pool=%s", pool_path, 0),
+    FUSE_OPT_END
+};
+
+static const struct fuse_operations vrfs_ops = {
+    .getattr    = vrfs_getattr,
+    .readdir    = vrfs_readdir,
 };
 
 int main(int argc, char *argv[]) {
     struct fuse_args args = FUSE_ARGS_INIT(argc, argv);
-    struct fuse_chan *chan;
-    char *mountpoint;
-    int err = -1;
-    
-    if(fuse_parse_cmdline(&args, &mountpoint, NULL, NULL) != -1) {
-        chan = fuse_mount(mountpoint, &args);
-        if(chan) {
-            struct fuse_session *session;
-            session = fuse_lowlevel_new(&args, &vrfs_ops, sizeof vrfs_ops, NULL);
-            if(session) {
-                if(fuse_set_signal_handlers(session) != -1) {
-                    fuse_session_add_chan(session, chan);
-                    err = fuse_session_loop(session);
-                    fuse_remove_signal_handlers(session);
-                    fuse_session_remove_chan(chan);
-                }
-                fuse_session_destroy(session);
-            }
-            fuse_unmount(mountpoint, chan);
-        }
-    }
-    fuse_opt_free_args(&args);
-
-    return err ? 1 : 0;
+    struct vrfs_data data = {};
+    fuse_opt_parse(&args, &data, vrfs_opts, NULL);
+    return fuse_main(argc, argv, &vrfs_ops, &data);
 }

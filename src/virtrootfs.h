@@ -1,6 +1,6 @@
 /*
     Anthon Uniform Configuration Helper
-    Copyright (C) 2016 StarBrilliant <m13253@hotmail.com
+    Copyright (C) 2016 StarBrilliant <m13253@hotmail.com>
     Copyright (C) 2016 Icenowy
 
     This program is free software: you can redistribute it and/or modify
@@ -19,6 +19,13 @@
 
 #pragma once
 
-#define FUSE_USE_VERSION 29
+#define FUSE_USE_VERSION 26
 #include <fuse.h>
-#include <fuse_lowlevel.h>
+
+struct vrfs_data {
+    char *index_path;
+    char *pool_path;
+};
+
+int vrfs_getattr(const char *path, struct stat *stbuf);
+int vrfs_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t off, struct fuse_file_info *fi);

@@ -1,6 +1,6 @@
 /*
     Anthon Uniform Configuration Helper
-    Copyright (C) 2016 StarBrilliant <m13253@hotmail.com
+    Copyright (C) 2016 StarBrilliant <m13253@hotmail.com>
     Copyright (C) 2016 Icenowy
 
     This program is free software: you can redistribute it and/or modify
@@ -17,8 +17,17 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#include "virtrootfs.h"
+#include <dirent.h>
+#include <stddef.h>
+#include <unistd.h>
+#include <bstrlib.h>
+#include <fuse.h>
 
-// TODO: add functions here
-
-void vrfs_opendir(fuse_req_t req, fuse_ino_t ino, struct fuse_file_info *fi);
+int vrfs_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t off, struct fuse_file_info *fi) {
+    struct fuse_context *context = fuse_get_context();
+    struct vrfs_data *data  = context->private_data;
+    filler(buf, ".", NULL, 0);
+    filler(buf, "..", NULL, 0);
+    return 0;
+}
