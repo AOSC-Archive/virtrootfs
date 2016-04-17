@@ -31,9 +31,9 @@ int vrfs_resolve(const bstring *virt_path, bstring *real_path, pid_t pid) {
         real_path = index_file
         return true
     else
-        env_file = "/proc/"+pid+"/environ"["AUCH_ENV"[
+        env_file = "/proc/"+pid+"/environ"["AUCH_ENV"]
         imported_packages[] = open(env_file).readlines
-        (provider_packages, exporter_packages)[] =  open(index_file).readlines.split
+        (provider_packages, exporter_packages)[] = open(index_file).readlines.split
         if any of imported_packages in provider_packages
             if the exporter_package is empty
                 real_path = pool_path+provider_package+virt_path
