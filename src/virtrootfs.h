@@ -2,6 +2,7 @@
     Anthon Uniform Configuration Helper
     Copyright (C) 2016 StarBrilliant <m13253@hotmail.com>
     Copyright (C) 2016 Icenowy
+    Copyright (C) 2016 bobcao3 <bobcaocheng@163.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
