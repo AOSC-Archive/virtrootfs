@@ -25,7 +25,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <bstrlib.h>
+#include <string.h>
 #include <fuse.h>
 
 int vrfs_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t off, struct fuse_file_info *fi) {
@@ -38,32 +38,24 @@ int vrfs_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t off,
     filler(buf, "..", NULL, 0);
     
     /* Something goes here go get physical components of this dir */
-    // phy_components = xxx;
-    char *u = "/";
-	char **phy_components = {&u}; // Testing usage
+    // char **phy_components;
+    // virt_to_phylist(path, phy_components);
+    char *u1 = "/bin/true";
+    char *u2 = "/bin/echo";
+	char *phy_components[] = {u1,u2}; // Testing usage
+	int phy_comp_count = 1;
     
-    char *u_pc, fname;
-    struct stat oinfo, finfo;
-    struct dirent *ptr;
+    struct stat finfo;
     
-	while(*phy_components != NULL){		
-		u_pc = *phy_components;
-		stat(u_pc, &oinfo);
-		if(S_ISDIR(oinfo.st_mode)) {
-			dir = opendir(u_pc);
-			while((ptr = readdir(dir)) != NULL) {
-				chdir(u_pc);
-				lstat(ptr->d_name,&finfo);
-				// finfo passing is not working yet
-				filler(buf, ptr->d_name, &finfo, 0);
-			}
-			closedir(dir);
-		} else {
-		// Files part has some issue.. though
-			filler(buf, u_pc, NULL, 0);
-		}
+    char *u_pc;
+	for (int i = 0; i<phy_comp_count; i++) {
+		u_pc = phy_components[i];
+		stat(u_pc, &finfo);
 		
-		phy_components++;
+		printf("Phy count :%d\n", phy_comp_count);
+		printf("Phy :%s\n", u_pc);
+		
+		filler(buf, strrchr(u_pc, '/')+sizeof(char), &finfo, 0);
 	}
     
     return rc;
