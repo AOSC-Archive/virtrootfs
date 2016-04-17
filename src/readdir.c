@@ -41,9 +41,9 @@ int vrfs_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t off,
     // char **phy_components;
     // virt_to_phylist(path, phy_components);
     char *u1 = "/bin/true";
-    char *u2 = "/bin/echo";
+    char *u2 = "/etc/fstab";
 	char *phy_components[] = {u1,u2}; // Testing usage
-	int phy_comp_count = 1;
+	int phy_comp_count = 2;
     
     struct stat finfo;
     
