@@ -2,6 +2,7 @@
     Anthon Uniform Configuration Helper
     Copyright (C) 2016 StarBrilliant <m13253@hotmail.com>
     Copyright (C) 2016 Icenowy
+    Copyright (C) 2016 bobcao3 <bobcaocheng@163.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,16 +22,15 @@
 #include <errno.h>
 #include <stddef.h>
 #include <string.h>
+#include <stdlib.h>
 #include <fuse.h>
 
 int vrfs_getattr(const char *path, struct stat *stbuf) {
-    memset(stbuf, 0, sizeof *stbuf);
-    if(strcmp(path, "/") == 0) {
-        stbuf->st_mode = S_IFDIR | 0755;
-        stbuf->st_nlink = 2;
-    } else {
-        stbuf->st_mode = S_IFREG | 0644;
-        stbuf->st_nlink = 1;
+    // Here goes the code that resolve the phy path
+    char *phy_path = "/"; // Test usage
+    
+    if (stat(phy_path, stbuf)==0) {
+        return 0;
     }
-    return 0;
+    return 1;
 }
