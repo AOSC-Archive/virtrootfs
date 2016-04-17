@@ -39,15 +39,16 @@ int vrfs_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t off,
     
     /* Something goes here go get physical components of this dir */
     // phy_components = xxx;
-	char *phy_components = "/ /bin/true"; // Testing usage
+    char *u = "/";
+	char **phy_components = {&u}; // Testing usage
     
     char *u_pc, fname;
     struct stat oinfo, finfo;
     struct dirent *ptr;
-	u_pc = "/"; // Testing usage
-//	u_pc = strtok(phy_components, " ");  
-//	while(u_pc != NULL){		
-		stat(u_pc,&oinfo);
+    
+	while(*phy_components != NULL){		
+		u_pc = *phy_components;
+		stat(u_pc, &oinfo);
 		if(S_ISDIR(oinfo.st_mode)) {
 			dir = opendir(u_pc);
 			while((ptr = readdir(dir)) != NULL) {
@@ -62,8 +63,8 @@ int vrfs_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t off,
 			filler(buf, u_pc, NULL, 0);
 		}
 		
-//		u_pc = strtok(NULL, " ");
-//	}
+		phy_components++;
+	}
     
     return rc;
 }
