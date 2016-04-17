@@ -32,8 +32,8 @@ int vrfs_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t off,
     DIR *dir;
     int err = 0;
     {
-        bstring index_path;
-        vrfs_assert(bassigncstr(index_path, data->index_path) != BSTR_ERR);
+        bstring index_path = bfromcstr(data->index_path);
+        vrfs_assert(index_path != NULL);
         if(path[0] != '/') {
             vrfs_assert(bcatblk(index_path, "/", 1) != BSTR_ERR);
         }

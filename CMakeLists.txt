@@ -9,6 +9,7 @@ endif()
 file(GLOB_RECURSE VRFS_SRC RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "src/*.c" "src/*.h")
 add_executable(virtrootfs ${VRFS_SRC})
 set_target_properties(virtrootfs PROPERTIES POSITION_INDEPENDENT_CODE ON)
+add_definitions("-D_FILE_OFFSET_BITS=64")
 
 # Link to bstrlib
 add_library(bstrlib STATIC "lib/bstrlib/bsafe.c" "lib/bstrlib/bstraux.c" "lib/bstrlib/bstrlib.c" "lib/bstrlib/buniutil.c" "lib/bstrlib/utf8util.c")

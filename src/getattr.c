@@ -29,7 +29,7 @@ int vrfs_getattr(const char *path, struct stat *stbuf) {
         stbuf->st_mode = S_IFDIR | 0755;
         stbuf->st_nlink = 2;
     } else {
-        stbuf->st_mode = S_IFDIR | 0644;
+        stbuf->st_mode = S_IFREG | 0644;
         stbuf->st_nlink = 1;
     }
     return 0;
