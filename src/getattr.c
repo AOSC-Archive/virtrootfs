@@ -26,9 +26,13 @@
 #include <fuse.h>
 
 int vrfs_getattr(const char *path, struct stat *stbuf) {
+	char *phy_path;
     // Here goes the code that resolve the phy path
-    char *phy_path = "/"; // Test usage
-    
+    if (strcmp(path, "/")==0) {
+	    phy_path = "/"; // Test usage
+	} else {
+		phy_path = "/etc/fstab"; // Test usage
+	}    
     if (stat(phy_path, stbuf)==0) {
         return 0;
     }
