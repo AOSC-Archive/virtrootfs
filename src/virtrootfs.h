@@ -21,6 +21,7 @@
 
 #define FUSE_USE_VERSION 26
 #include <fuse.h>
+#include <bstrlib.h>
 
 struct vrfs_data {
     const char *index_path;
