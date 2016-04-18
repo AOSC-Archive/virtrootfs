@@ -37,7 +37,7 @@ int vrfs_open(const char *path, struct fuse_file_info *fi);
 int vrfs_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi);
 int vrfs_flush(const char *path, struct fuse_file_info *fi);
 char* virt_to_phy(const char* virt);
-int virt_to_phylist(const char* virt, char** phy_components);
+int vrfs_resolve_dir(const char *virt_path, char** phy_components, pid_t pid)
 
 void vrfs_assert_failed(const char *expr, const char *file, unsigned int line);
 #ifndef vrfs_assert

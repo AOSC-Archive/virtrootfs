@@ -26,66 +26,49 @@ char* virt_to_phy(const char* virt) {
 	return "/etc/fstab";	
 }
 
-int virt_to_phylist(const char* virt, char** phy_components) {
-	char *u1 = "/bin/true";
-    char *u2 = "/etc/fstab";
-  //  phy_components = malloc(512);
-    phy_components[0] = u1;
-    phy_components[1] = u2;
-	return 2;
+int vrfs_resolve_dir(const char *virt_path, char** phy_components, pid_t pid) {
+	return 0;
 }
 
 int vrfs_resolve(const char *virt_path, char *real_path, pid_t pid) {
-	// Fixme: Need to change this pool path to a dynamical one
-    char* index = "/var/lib/auch/index";
-    char* index_file;
-    sprintf(index_file, "%s/%s", index, virt_path);
-    struct stat finfo;
-    if (!stat(index_file, &finfo)) {
-        return 1;
-    } else if (S_ISDIR(finfo.st_mode)) {
-        real_path = index_file;
-        return 0;
-    } else {
-        char *env_file;
-        int pid = 0;
-        sprintf(env_file, "/proc/%d/environ", pid);
-        FILE *envf = fopen(env_file, "r");
-        char *index_lines[256];
-        char *line;
-        int i = 0;
-        fscanf(envf, "%s", line);
-        while (line) {
-        	index_lines[i] = line;
-        	i++;
-        	fscanf(envf, "%s", line);
-        }
-        for (int j = 0; j++; j<i) {
-        	char *imported_f = index_lines[j];
-        	char *line;
-        	int i = 0;
-        	FILE *imported = fopen(imported_f, "r");
-        	fscanf(imported, "%s", line);
-        	while (line) {
-        		if (strcmp(line, virt_path)==0) {
-        // Fixme: Need to change this pool path to a dynamical one
-        			char* pool = "/var/lib/auch/packages";
-        			sprintf(real_path, "%s/%s/%s", pool, imported, virt_path);
-        		}
-        		i++;
-        		fscanf(imported, "%s", line);
-        	}
-        }
-        /*
-        (provider_packages, exporter_packages)[] = open(index_file).readlines.split
-        if any of imported_packages in provider_packages
-            if the exporter_package is empty
-                real_path = pool_path+provider_package+virt_path
-            else
-               、 real_path = pool_path+exporter_package+virt_path
-            return true
-        else
-            return false*/
-    }
+// Get env_file name
+	char *env_file;
+   	sprintf(env_file, "/proc/%d/environ", pid);
+	FILE *envf = fopen(env_file, "r");
+	char *line;
+	fscanf(envf, "%s", line);
+// Get AUCH_ENV from env file
+	int i = 0;
+	char *index_lines[256];
+	char* token;
+	token = strtok(line, "^@");
+	char *auch_env;
+	while(token != NULL) {
+		if (strlen(token)>=strlen("AUCH_ENV=")) {
+			char* p;
+			if (p=strstr(token, "AUCH_ENV=")) {
+				auch_env = token + sizeof("AUCH_ENV=");
+				break;
+			}
+		}
+		i++;
+		token = strtok(NULL, "^@");
+	}
+	char* endp = token = strtok(NULL, "^@");
+	endp = (char) 0; // Cut the string
+// Read the index file (AUCH_ENV) and try to match files
+	FILE *index = fopen(auch_env, "r");
+	char* imported_package;
+	fscanf(index, "%s", imported_package);
+	while (line) {
+		char *pool = "/var/lib/auch/packages";
+		char* phy_file_trial;
+		sprintf(phy_file_trial, "%s/%s/%s", pool, imported, virt_path);
+		if (access(phy_file_trial, 0)) {
+			real_path = phy_file_trial;
+			return 0;
+		}
+		fscanf(index, "%s", line);
+	}
     return 1;
 }
