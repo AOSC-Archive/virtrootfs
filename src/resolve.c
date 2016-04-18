@@ -26,8 +26,7 @@
 int vrfs_resolve_dir(const char *virt_path, char** phy_components, pid_t pid) {
 	int count = 0;
 // Get env_file name
-	char *env_file;
-   	sprintf(env_file, "/proc/%d/environ", pid);
+	char* env_file = bstr2cstr(bformat("/proc/%d/environ", pid), 0);
 	FILE *envf = fopen(env_file, "r");
 	char *line;
 	fscanf(envf, "%s", line);
@@ -39,15 +38,15 @@ int vrfs_resolve_dir(const char *virt_path, char** phy_components, pid_t pid) {
 	while(token != NULL) {
 		if (strlen(token)>=strlen("AUCH_ENV=")) {
 			char* p;
-			if (p=strstr(token, "AUCH_ENV=")) {
-				auch_env = token + sizeof("AUCH_ENV=");
+			if ((memcmp(token, "AUCH_ENV=", sizeof("AUCH_ENV=")))&&(p=strstr(token, "="))) {
+				auch_env = token + sizeof(char);
 				break;
 			}
 		}
 		i++;
 		token = strtok(NULL, "^@");
 	}
-	char* endp = token = strtok(NULL, "^@");
+	char* endp = strtok(NULL, "^@");
 	endp = (char) 0; // Cut the string
 // Read the index file (AUCH_ENV) and try to match files
 	FILE *index = fopen(auch_env, "r");
@@ -55,13 +54,12 @@ int vrfs_resolve_dir(const char *virt_path, char** phy_components, pid_t pid) {
 	fscanf(index, "%s", imported_package);
 	while (imported_package) {
 		char *pool = "/var/lib/auch/packages";
-		char* phy_file_trial;
-		sprintf(phy_file_trial, "%s/%s/%s", pool, imported_package, virt_path);
+		char* phy_file_trial = bstr2cstr(bformat("%s/%s/%s", pool, imported_package, virt_path), 0);
 		if (access(phy_file_trial, 0)) {
 			DIR *dir = opendir(phy_file_trial);
 			struct dirent *dinfo;
 			while((dinfo=readdir(dir)) != NULL) {
-				sprintf(phy_components[count], "%s/%s", phy_file_trial,dinfo->d_name);
+				phy_components[count] = bstr2cstr(bformat("%s/%s", phy_file_trial,dinfo->d_name), 0);
 				count++;
 			}
 			closedir(dir);
@@ -73,8 +71,7 @@ int vrfs_resolve_dir(const char *virt_path, char** phy_components, pid_t pid) {
 
 int vrfs_resolve(const char *virt_path, char *real_path, pid_t pid) {
 // Get env_file name
-	char *env_file;
-   	sprintf(env_file, "/proc/%d/environ", pid);
+	char* env_file = bstr2cstr(bformat("/proc/%d/environ", pid), 0);
 	FILE *envf = fopen(env_file, "r");
 	char *line;
 	fscanf(envf, "%s", line);
@@ -86,15 +83,15 @@ int vrfs_resolve(const char *virt_path, char *real_path, pid_t pid) {
 	while(token != NULL) {
 		if (strlen(token)>=strlen("AUCH_ENV=")) {
 			char* p;
-			if (p=strstr(token, "AUCH_ENV=")) {
-				auch_env = token + sizeof("AUCH_ENV=");
+			if ((memcmp(token, "AUCH_ENV=", sizeof("AUCH_ENV=")))&&(p=strstr(token, "="))) {
+				auch_env = token + sizeof("=");
 				break;
 			}
 		}
 		i++;
 		token = strtok(NULL, "^@");
 	}
-	char* endp = token = strtok(NULL, "^@");
+	char* endp = strtok(NULL, "^@");
 	endp = (char) 0; // Cut the string
 // Read the index file (AUCH_ENV) and try to match files
 	FILE *index = fopen(auch_env, "r");
@@ -102,8 +99,7 @@ int vrfs_resolve(const char *virt_path, char *real_path, pid_t pid) {
 	fscanf(index, "%s", imported_package);
 	while (imported_package) {
 		char *pool = "/var/lib/auch/packages";
-		char* phy_file_trial;
-		sprintf(phy_file_trial, "%s/%s/%s", pool, imported_package, virt_path);
+		char* phy_file_trial = bstr2cstr(bformat("%s/%s/%s", pool, imported_package, virt_path), 0);
 		if (access(phy_file_trial, 0)) {
 			real_path = phy_file_trial;
 			return 0;
