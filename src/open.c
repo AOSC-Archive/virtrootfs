@@ -47,3 +47,16 @@ int vrfs_read(const char *path, char *buf, size_t size, off_t offset, struct fus
 
 	return i;
 }
+
+int vrfs_flush(const char *path, struct fuse_file_info *fi) {
+	int fd = dup(fi->fh);
+	if (fd == -1) {
+		if (fsync(fi->fh) == -1) return -EIO;
+		return -errno;
+	}
+	int res = close(fd);
+	if (res == -1) return -errno;
+
+	return 0;
+}
+
