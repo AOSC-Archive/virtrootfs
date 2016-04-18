@@ -27,10 +27,7 @@
 #include <fuse.h>
 
 int vrfs_open(const char *path, struct fuse_file_info *fi) {
-	// Here goes codes to make phy path
-	// p = xxx
-	char *p;
-	p = "/etc/fstab"; // Test usage
+	char *p = virt_to_phy(path);
 	
 	int fd = open(p, fi->flags);
 	if (fd == -1) return -errno;

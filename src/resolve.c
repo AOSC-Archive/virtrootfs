@@ -21,6 +21,19 @@
 #include <bstrlib.h>
 #include <unistd.h>
 
+char* virt_to_phy(const char* virt) {
+	return "/etc/fstab";	
+}
+
+int virt_to_phylist(const char* virt, char** phy_components) {
+	char *u1 = "/bin/true";
+    char *u2 = "/etc/fstab";
+  //  phy_components = malloc(512);
+    phy_components[0] = u1;
+    phy_components[1] = u2;
+	return 2;
+}
+
 int vrfs_resolve(const bstring *virt_path, bstring *real_path, pid_t pid) {
     // STUB
     /*

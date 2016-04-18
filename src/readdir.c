@@ -25,7 +25,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <string.h>
+#include <bstrlib.h>
 #include <fuse.h>
 
 int vrfs_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t off, struct fuse_file_info *fi) {
@@ -37,14 +37,9 @@ int vrfs_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t off,
     filler(buf, ".", NULL, 0);
     filler(buf, "..", NULL, 0);
     
-    /* Something goes here go get physical components of this dir */
-    // char **phy_components;
-    // virt_to_phylist(path, phy_components);
-    char *u1 = "/bin/true";
-    char *u2 = "/etc/fstab";
-	char *phy_components[] = {u1,u2}; // Testing usage
-	int phy_comp_count = 2;
-    
+    char *phy_components[5];
+    int phy_comp_count = virt_to_phylist(path, phy_components);
+	
     struct stat finfo;
     
     char *u_pc;
