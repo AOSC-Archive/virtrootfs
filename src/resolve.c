@@ -19,6 +19,7 @@
 
 #include "virtrootfs.h"
 #include <bstrlib.h>
+#include <stdio.h>
 #include <unistd.h>
 
 char* virt_to_phy(const char* virt) {
@@ -34,27 +35,57 @@ int virt_to_phylist(const char* virt, char** phy_components) {
 	return 2;
 }
 
-int vrfs_resolve(const bstring *virt_path, bstring *real_path, pid_t pid) {
-    // STUB
-    /*
-    index_file = index+virt_path
-    if index_file does not exist
-        return false
-    elif index_file is directory
-        real_path = index_file
-        return true
-    else
-        env_file = "/proc/"+pid+"/environ"["AUCH_ENV"]
-        imported_packages[] = open(env_file).readlines
+int vrfs_resolve(const char *virt_path, char *real_path, pid_t pid) {
+	// Fixme: Need to change this pool path to a dynamical one
+    char* index = "/var/lib/auch/index";
+    char* index_file;
+    sprintf(index_file, "%s/%s", index, virt_path);
+    struct stat finfo;
+    if (!stat(index_file, &finfo)) {
+        return 1;
+    } else if (S_ISDIR(finfo.st_mode)) {
+        real_path = index_file;
+        return 0;
+    } else {
+        char *env_file;
+        int pid = 0;
+        sprintf(env_file, "/proc/%d/environ", pid);
+        FILE *envf = fopen(env_file, "r");
+        char *index_lines[256];
+        char *line;
+        int i = 0;
+        fscanf(envf, "%s", line);
+        while (line) {
+        	index_lines[i] = line;
+        	i++;
+        	fscanf(envf, "%s", line);
+        }
+        for (int j = 0; j++; j<i) {
+        	char *imported_f = index_lines[j];
+        	char *line;
+        	int i = 0;
+        	FILE *imported = fopen(imported_f, "r");
+        	fscanf(imported, "%s", line);
+        	while (line) {
+        		if (strcmp(line, virt_path)==0) {
+        // Fixme: Need to change this pool path to a dynamical one
+        			char* pool = "/var/lib/auch/packages";
+        			sprintf(real_path, "%s/%s/%s", pool, imported, virt_path);
+        		}
+        		i++;
+        		fscanf(imported, "%s", line);
+        	}
+        }
+        /*
         (provider_packages, exporter_packages)[] = open(index_file).readlines.split
         if any of imported_packages in provider_packages
             if the exporter_package is empty
                 real_path = pool_path+provider_package+virt_path
             else
-                real_path = pool_path+exporter_package+virt_path
+               、 real_path = pool_path+exporter_package+virt_path
             return true
         else
-            return false
-    */
-    return 0;
+            return false*/
+    }
+    return 1;
 }
