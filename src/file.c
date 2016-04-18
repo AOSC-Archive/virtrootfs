@@ -27,7 +27,10 @@
 #include <fuse.h>
 
 int vrfs_open(const char *path, struct fuse_file_info *fi) {
-	char *p = virt_to_phy(path);
+	const struct fuse_context *context = fuse_get_context();
+
+	char *p;
+	vrfs_resolve(path, p, context->pid);
 	
 	int fd = open(p, fi->flags);
 	if (fd == -1) return -errno;
