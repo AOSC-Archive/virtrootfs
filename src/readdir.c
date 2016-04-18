@@ -37,8 +37,8 @@ int vrfs_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t off,
     filler(buf, ".", NULL, 0);
     filler(buf, "..", NULL, 0);
     
-    char *phy_components[5];
-    int phy_comp_count = virt_to_phylist(path, phy_components);
+    char *phy_components[1024];
+    int phy_comp_count = vrfs_resolve_dir(path, phy_components, context->pid);
 	
     struct stat finfo;
     

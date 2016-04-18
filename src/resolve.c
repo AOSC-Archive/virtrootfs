@@ -37,7 +37,6 @@ int vrfs_resolve_dir(const char *virt_path, char** phy_components, pid_t pid) {
 	fscanf(envf, "%s", line);
 // Get AUCH_ENV from env file
 	int i = 0;
-	char *index_lines[256];
 	char* token;
 	token = strtok(line, "^@");
 	char *auch_env;
@@ -85,7 +84,6 @@ int vrfs_resolve(const char *virt_path, char *real_path, pid_t pid) {
 	fscanf(envf, "%s", line);
 // Get AUCH_ENV from env file
 	int i = 0;
-	char *index_lines[256];
 	char* token;
 	token = strtok(line, "^@");
 	char *auch_env;
