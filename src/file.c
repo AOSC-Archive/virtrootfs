@@ -1,7 +1,5 @@
 /*
     Anthon Uniform Configuration Helper
-    Copyright (C) 2016 StarBrilliant <m13253@hotmail.com>
-    Copyright (C) 2016 Icenowy
     Copyright (C) 2016 bobcao3 <bobcaocheng@163.com>
 
     This program is free software: you can redistribute it and/or modify
@@ -19,22 +17,46 @@
 */
 
 #include "virtrootfs.h"
+#include <dirent.h>
 #include <errno.h>
 #include <stddef.h>
-#include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <string.h>
 #include <fuse.h>
 
-int vrfs_getattr(const char *path, struct stat *stbuf) {
-	char *phy_path;
-    // Here goes the code that resolve the phy path
-    if (strcmp(path, "/")==0) {
-	    phy_path = "/"; // Test usage
-	} else {
-		phy_path = "/etc/fstab"; // Test usage
-	}    
-    if (stat(phy_path, stbuf)==0) {
-        return 0;
-    }
-    return 1;
+int vrfs_open(const char *path, struct fuse_file_info *fi) {
+	// Here goes codes to make phy path
+	// p = xxx
+	char *p;
+	p = "/etc/fstab"; // Test usage
+	
+	int fd = open(p, fi->flags);
+	if (fd == -1) return -errno;
+	
+	fi->fh = (unsigned long)fd;
+	
+	return 0;
 }
+
+int vrfs_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi) {
+	int i = pread(fi->fh, buf, size, offset);
+
+	if (i == -1) return -errno;
+
+	return i;
+}
+
+int vrfs_flush(const char *path, struct fuse_file_info *fi) {
+	int fd = dup(fi->fh);
+	if (fd == -1) {
+		if (fsync(fi->fh) == -1) return -EIO;
+		return -errno;
+	}
+	int res = close(fd);
+	if (res == -1) return -errno;
+
+	return 0;
+}
+
