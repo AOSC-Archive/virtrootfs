@@ -23,10 +23,6 @@
 #include <dirent.h>
 #include <unistd.h>
 
-char* virt_to_phy(const char* virt) {
-	return "/etc/fstab";	
-}
-
 int vrfs_resolve_dir(const char *virt_path, char** phy_components, pid_t pid) {
 	int count = 0;
 // Get env_file name
