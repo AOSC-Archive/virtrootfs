@@ -29,15 +29,20 @@
 int vrfs_open(const char *path, struct fuse_file_info *fi) {
 	const struct fuse_context *context = fuse_get_context();
 
-	char *p;
-	vrfs_resolve(path, p, context->pid);
+	char *p = vrfs_resolve(path, p, context->pid);
+	if (p!=NULL) {
+		printf("File open DBG: phy - %s\n", p);
+
+		int fd = open(p, fi->flags);
+		if (fd == -1) return -errno;
 	
-	int fd = open(p, fi->flags);
-	if (fd == -1) return -errno;
+		fi->fh = (unsigned long)fd;
 	
-	fi->fh = (unsigned long)fd;
-	
-	return 0;
+		return 0;
+	} else {
+		printf("File open DBG: phy can't be found\n", p);
+		return 1;
+	}
 }
 
 int vrfs_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi) {
