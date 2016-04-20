@@ -25,7 +25,7 @@
 
 bstring vrfs_resolve_index(pid_t pid) {
 // Get env file
-	bstring env = bformat("/proc/%d/environ", (int) pid);
+	bstring env = bformat("/proc/%d/environ", pid);
 	FILE *fp;
 	char* env_c = bstr2cstr(env, '\0');
 	bstring env_cxt;
