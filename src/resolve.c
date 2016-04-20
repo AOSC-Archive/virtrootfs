@@ -82,7 +82,7 @@ int vrfs_resolve_dir(const char *virt_path, char** phy_components, pid_t pid) {
 	return 0;
 }
 
-int vrfs_resolve(const char *virt_path, char *real_path, pid_t pid) {
+char* vrfs_resolve(const char *virt_path, char *real_path, pid_t pid) {
 // get env file name
 	bstring env = vrfs_resolve_index(pid);
 	if (env!=NULL) {
@@ -92,7 +92,7 @@ int vrfs_resolve(const char *virt_path, char *real_path, pid_t pid) {
 	} else {
 		printf("resolve file env - DBG: no AUCH_ENV found\n");
 		bdestroy(env);
-		return 1;
+		return NULL;
 	}
 // get env file content
 	FILE *fp;
@@ -105,7 +105,7 @@ int vrfs_resolve(const char *virt_path, char *real_path, pid_t pid) {
 	} else {
 		bcstrfree(env_c);
 		fclose(fp);
-		return 2;
+		return NULL;
 	}
 	bcstrfree(env_c);
 	struct bstrList *envs = bsplit(env_cxt, '\n');
@@ -116,13 +116,11 @@ int vrfs_resolve(const char *virt_path, char *real_path, pid_t pid) {
 		env_row = bformat("/var/lib/auch/packages/%s%s", envs->entry[i]->data, virt_path);
 		char* env_row_c = bstr2cstr(env_row, '\n');
 		if (access(env_row_c, 0)==0) {
-			*real_path = env_row_c;
-			bcstrfree(env_row_c);
 			bdestroy(env_row);
-			return 0;
+			return env_row_c;
 		}
 		bcstrfree(env_row_c);
 	}
 	bdestroy(env_row);
-	return 3;
+	return NULL;
 }
