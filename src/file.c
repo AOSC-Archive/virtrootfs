@@ -34,12 +34,14 @@ int vrfs_open(const char *path, struct fuse_file_info *fi) {
 		printf("File open DBG: phy - %s\n", p);
 
 		int fd = open(p, fi->flags);
+		bcstrfree(p);
 		if (fd == -1) return -errno;
 	
 		fi->fh = (unsigned long)fd;
 	
 		return 0;
 	} else {
+		bcstrfree(p);
 		printf("File open DBG: phy can't be found\n", p);
 		return 1;
 	}
