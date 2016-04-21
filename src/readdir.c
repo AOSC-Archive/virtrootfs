@@ -47,9 +47,6 @@ int vrfs_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t off,
 		u_pc = phy_components[i];
 		stat(u_pc, &finfo);
 		
-		printf("Phy count :%d\n", phy_comp_count);
-		printf("Phy :%s\n", u_pc);
-		
 		filler(buf, strrchr(u_pc, '/')+sizeof(char), &finfo, 0);
 	}
     

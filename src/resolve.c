@@ -75,12 +75,45 @@ int vrfs_resolve_dir(const char *virt_path, char** phy_components, pid_t pid) {
 		bdestroy(env);
 		return 0;
 	}
-	bdestroy(env);
 // Read the index file (AUCH_ENV) and try to match files
-
-// Something goes
-
-	return 0;
+	FILE *fp;
+	char* env_c = bstr2cstr(env, '\0');
+	bdestroy(env);
+	bstring env_cxt;
+	if (NULL != (fp = fopen (env_c, "r"))) {
+		env_cxt = bread ((bNread) fread, fp);
+		fclose (fp);
+	} else {
+		bcstrfree(env_c);
+		fclose(fp);
+		return 0;
+	}
+	bcstrfree(env_c);
+	struct bstrList *envs = bsplit(env_cxt, '\n');
+	bdestroy(env_cxt);
+// match file
+	bstring env_row;
+	int count = 0;
+	for (int i=0; i < envs->qty - 1; i++) {
+		env_row = bformat("/var/lib/auch/packages/%s%s", envs->entry[i]->data, virt_path);
+		char* env_row_c = bstr2cstr(env_row, '\n');
+		if (access(env_row_c, 0)==0) {
+			DIR *dp;
+			if ((dp = opendir(env_row_c)) != NULL) {  
+    			struct dirent *entry;
+    			while ((entry = readdir(dp)) != NULL) {
+					bstring p = bformat("%s/%s", virt_path, entry->d_name);
+					phy_components[count] = bstr2cstr(p,'\0');
+					bdestroy(p);
+					count++;
+    			}
+    		}
+    		closedir(dp);
+		}
+		bcstrfree(env_row_c);
+	}
+	bdestroy(env_row);
+	return count;
 }
 
 char* vrfs_resolve(const char *virt_path, char *real_path, pid_t pid) {
