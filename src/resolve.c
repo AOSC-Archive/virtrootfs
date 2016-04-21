@@ -116,7 +116,7 @@ int vrfs_resolve_dir(const char *virt_path, char** phy_components, pid_t pid) {
 	return count;
 }
 
-char* vrfs_resolve(const char *virt_path, char *real_path, pid_t pid) {
+char* vrfs_resolve(const char *virt_path, pid_t pid) {
 // get env file name
 	bstring env = vrfs_resolve_index(pid);
 	if (env!=NULL) {
