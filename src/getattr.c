@@ -21,20 +21,18 @@
 #include "virtrootfs.h"
 #include <errno.h>
 #include <stddef.h>
-#include <string.h>
+#include <bstrlib.h>
 #include <stdlib.h>
 #include <fuse.h>
 
 int vrfs_getattr(const char *path, struct stat *stbuf) {
-	char *phy_path;
-    // Here goes the code that resolve the phy path
-    if (strcmp(path, "/")==0) {
-	    phy_path = "/"; // Test usage
-	} else {
-		phy_path = "/etc/fstab"; // Test usage
-	}    
+	const struct fuse_context *context = fuse_get_context();
+	
+	char *phy_path = vrfs_resolve(path, context->pid);
     if (stat(phy_path, stbuf)==0) {
+    	bcstrfree(phy_path);
         return 0;
     }
+    bcstrfree(phy_path);
     return 1;
 }
