@@ -29,7 +29,7 @@
 int vrfs_open(const char *path, struct fuse_file_info *fi) {
 	const struct fuse_context *context = fuse_get_context();
 
-	char *p = vrfs_resolve(path, p, context->pid);
+	char *p = vrfs_resolve(path, context->pid);
 	if (p!=NULL) {
 		printf("File open DBG: phy - %s\n", p);
 
