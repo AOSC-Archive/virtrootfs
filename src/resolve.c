@@ -65,7 +65,7 @@ bstring vrfs_resolve_index(pid_t pid) {
 }
 
 int vrfs_resolve_dir(const char *virt_path, char** phy_components, pid_t pid) {
-	bstring env = vrfs_resolve_index(pid);
+	bstring env = bformat("/var/run/auch/env/%s",vrfs_resolve_index(pid)->data);
 	if (env!=NULL) {
 		char* env_c = bstr2cstr(env, '\0');
 		printf("resolve dir env - DBG: %s\n",env_c);
@@ -118,7 +118,7 @@ int vrfs_resolve_dir(const char *virt_path, char** phy_components, pid_t pid) {
 
 char* vrfs_resolve(const char *virt_path, pid_t pid) {
 // get env file name
-	bstring env = vrfs_resolve_index(pid);
+	bstring env = bformat("/var/run/auch/env/%s",vrfs_resolve_index(pid)->data);
 	if (env!=NULL) {
 		char* env_c = bstr2cstr(env, '\0');
 		printf("resolve file env - DBG: %s\n",env_c);
