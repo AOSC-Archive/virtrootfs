@@ -49,6 +49,7 @@ static const struct fuse_operations vrfs_ops = {
     .open		= vrfs_open,
     .read		= vrfs_read,
     .flush		= vrfs_flush,
+    .release	= vrfs_release,
 };
 
 static int vrfs_opt_proc(void *data, const char *arg, int key, struct fuse_args *outargs) {

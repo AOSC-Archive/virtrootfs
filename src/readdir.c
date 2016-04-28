@@ -45,7 +45,7 @@ int vrfs_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t off,
 		
 		bstring u_pc_b = bfromcstr(u_pc);
 		bstring file = bmidstr(u_pc_b, strlen(path)+1, u_pc_b->slen-strlen(path)-1);
-		filler(buf, file->data, &finfo, 0);
+		filler(buf, (const char*) file->data, &finfo, 0);
 		bdestroy(file);
 		bdestroy(u_pc_b);
 		
