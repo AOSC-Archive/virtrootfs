@@ -2,6 +2,7 @@
     Anthon Uniform Configuration Helper
     Copyright (C) 2016 StarBrilliant <m13253@hotmail.com>
     Copyright (C) 2016 Icenowy
+    Copyright (C) 2016 bobcao3 <bobcaocheng@163.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -22,6 +23,7 @@
 #include <errno.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <unistd.h>
 #include <bstrlib.h>
 #include <fuse.h>
@@ -30,37 +32,25 @@ int vrfs_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t off,
     const struct fuse_context *context = fuse_get_context();
     const struct vrfs_data *data  = context->private_data;
     DIR *dir;
-    int err = 0;
-    {
-        bstring index_path = bfromcstr(data->index_path);
-        vrfs_assert(index_path != NULL);
-        if(path[0] != '/') {
-            vrfs_assert(bcatblk(index_path, "/", 1) != BSTR_ERR);
-        }
-        vrfs_assert(bcatcstr(index_path, path) != BSTR_ERR);
-        {
-            char *c_index_path = bstr2cstr(index_path, ' ');
-            vrfs_assert(index_path != NULL);
-            dir = opendir(c_index_path);
-            if(!dir) {
-                err = errno;
-            }
-            bcstrfree(c_index_path);
-        }
-        bdestroy(index_path);
-    }
-    if(!dir) {
-        return -err;
-    }
-    for(;;) {
-        const struct dirent *dir_entry = readdir(dir);
-        if(!dir_entry) {
-            break;
-        }
-        filler(buf, dir_entry->d_name, NULL, 0);
-    }
-    if(dir) {
-        closedir(dir);
-    }
+    
+    char *phy_components[1024];
+    int phy_comp_count = vrfs_resolve_dir(path, phy_components, context->pid, data->pool_path);
+	
+    struct stat finfo;
+    
+    char *u_pc;
+	for (int i = 0; i<phy_comp_count; i++) {
+		u_pc = phy_components[i];
+		stat(u_pc, &finfo);
+		
+		bstring u_pc_b = bfromcstr(u_pc);
+		bstring file = bmidstr(u_pc_b, strlen(path)+1, u_pc_b->slen-strlen(path)-1);
+		filler(buf, file->data, &finfo, 0);
+		bdestroy(file);
+		bdestroy(u_pc_b);
+		
+		bcstrfree(u_pc);
+	}
+    
     return 0;
 }

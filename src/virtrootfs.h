@@ -2,6 +2,7 @@
     Anthon Uniform Configuration Helper
     Copyright (C) 2016 StarBrilliant <m13253@hotmail.com>
     Copyright (C) 2016 Icenowy
+    Copyright (C) 2016 bobcao3 <bobcaocheng@163.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -31,7 +32,11 @@ struct vrfs_data {
 void *vrfs_init(struct fuse_conn_info *conn);
 int vrfs_getattr(const char *path, struct stat *stbuf);
 int vrfs_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t off, struct fuse_file_info *fi);
-int vrfs_resolve(const bstring *virt_path, bstring *real_path, pid_t pid);
+char* vrfs_resolve(const char *virt_path, pid_t pid, const char* pool);
+int vrfs_resolve_dir(const char *virt_path, char** phy_components, pid_t pid, const char* pool);
+int vrfs_open(const char *path, struct fuse_file_info *fi);
+int vrfs_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi);
+int vrfs_flush(const char *path, struct fuse_file_info *fi);
 
 void vrfs_assert_failed(const char *expr, const char *file, unsigned int line);
 #ifndef vrfs_assert

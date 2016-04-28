@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.0)
 project(virtrootfs)
 
+set(CMAKE_BUILD_TYPE Debug CACHE STRING "set build type to debug")
+
 option(STATIC_BUILD "Build a static version" ON)
 if(${STATIC_BUILD})
 set(CMAKE_EXE_LINKER_FLAGS "-static")
@@ -12,7 +14,7 @@ set_target_properties(virtrootfs PROPERTIES POSITION_INDEPENDENT_CODE ON)
 add_definitions("-D_FILE_OFFSET_BITS=64")
 
 # Link to bstrlib
-add_library(bstrlib STATIC "lib/bstrlib/bsafe.c" "lib/bstrlib/bstraux.c" "lib/bstrlib/bstrlib.c" "lib/bstrlib/buniutil.c" "lib/bstrlib/utf8util.c")
+add_library(bstrlib STATIC "lib/bstrlib/bstraux.c" "lib/bstrlib/bstrlib.c" "lib/bstrlib/buniutil.c" "lib/bstrlib/utf8util.c")
 target_include_directories(bstrlib INTERFACE "lib/bstrlib")
 set_target_properties(bstrlib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_link_libraries(virtrootfs PRIVATE bstrlib)
