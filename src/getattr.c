@@ -29,10 +29,12 @@ int vrfs_getattr(const char *path, struct stat *stbuf) {
 	const struct fuse_context *context = fuse_get_context();
 	
 	char *phy_path = vrfs_resolve(path, context->pid);
-    if (stat(phy_path, stbuf)==0) {
+    if (phy_path != NULL) {
+    	if (stat(phy_path, stbuf)==0) {
+    		bcstrfree(phy_path);
+    	    return 0;
+    	}
     	bcstrfree(phy_path);
-        return 0;
     }
-    bcstrfree(phy_path);
     return 1;
 }
