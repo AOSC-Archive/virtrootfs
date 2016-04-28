@@ -63,7 +63,7 @@ bstring vrfs_resolve_index(pid_t pid) {
 	}
 }
 
-int vrfs_resolve_dir(const char *virt_path, char** phy_components, pid_t pid) {
+int vrfs_resolve_dir(const char *virt_path, char** phy_components, pid_t pid, const char* pool) {
 	bstring index_f = vrfs_resolve_index(pid);
 	if (index_f == NULL) {
 		return 1;
@@ -99,7 +99,7 @@ int vrfs_resolve_dir(const char *virt_path, char** phy_components, pid_t pid) {
 	bstring env_row;
 	int count = 0;
 	for (int i=0; i < envs->qty - 1; i++) {
-		env_row = bformat("/var/lib/auch/packages/%s%s", envs->entry[i]->data, virt_path);
+		env_row = bformat("%s/%s/%s", pool, envs->entry[i]->data, virt_path);
 		char* env_row_c = bstr2cstr(env_row, '\n');
 		bdestroy(env_row);
 		if (access(env_row_c, 0)==0) {
@@ -121,7 +121,7 @@ int vrfs_resolve_dir(const char *virt_path, char** phy_components, pid_t pid) {
 	return count;
 }
 
-char* vrfs_resolve(const char *virt_path, pid_t pid) {
+char* vrfs_resolve(const char *virt_path, pid_t pid, const char* pool) {
 // get env file name
 	bstring index_f = vrfs_resolve_index(pid);
 	if (index_f == NULL) {
@@ -156,7 +156,7 @@ char* vrfs_resolve(const char *virt_path, pid_t pid) {
 	bdestroy(env_cxt);
 // match file
 	for (int i=0; i < envs->qty - 1; i++) {
-		bstring env_row = bformat("/var/lib/auch/packages/%s%s", envs->entry[i]->data, virt_path);
+		bstring env_row = bformat("%s/%s/%s", pool, envs->entry[i]->data, virt_path);
 		char* env_row_c = bstr2cstr(env_row, '\n');
 		if (access(env_row_c, 0)==0) {
 			bdestroy(env_row);
