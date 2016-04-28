@@ -50,7 +50,15 @@ bstring vrfs_resolve_index(pid_t pid) {
 				bstring env_buf = bmidstr (env_row, blength(b_prefix), blength(env_row) - blength(b_prefix));
 				bstrListDestroy (envs);
 				bdestroy(b_prefix);
-				return env_buf;
+				bstring env_f = bformat("/var/run/auch/env/%s",env_buf->data);
+				if (access((const char*) env_f->data, 0) == 0) {
+					bdestroy(env_f);
+					return env_buf;
+				} else {
+					bdestroy(env_buf);
+					bdestroy(env_f);
+					return NULL;
+				}
 			}
 		}
 		bstrListDestroy (envs);
