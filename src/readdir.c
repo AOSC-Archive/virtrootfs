@@ -34,7 +34,7 @@ int vrfs_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t off,
     DIR *dir;
     
     char *phy_components[1024];
-    int phy_comp_count = vrfs_resolve_dir(path, phy_components, context->pid);
+    int phy_comp_count = vrfs_resolve_dir(path, phy_components, context->pid, data->pool_path);
 	
     struct stat finfo;
     

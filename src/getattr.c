@@ -27,8 +27,9 @@
 
 int vrfs_getattr(const char *path, struct stat *stbuf) {
 	const struct fuse_context *context = fuse_get_context();
+	const struct vrfs_data *data  = context->private_data;
 	
-	char *phy_path = vrfs_resolve(path, context->pid);
+	char *phy_path = vrfs_resolve(path, context->pid, data->pool_path);
     if (phy_path != NULL) {
     	int rc = stat(phy_path, stbuf);
     	if (rc==0) {
