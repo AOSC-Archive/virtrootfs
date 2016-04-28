@@ -39,5 +39,5 @@ int vrfs_getattr(const char *path, struct stat *stbuf) {
     	bcstrfree(phy_path);
     	return -rc;
     }
-    return -1;
+    return -ENOENT;
 }

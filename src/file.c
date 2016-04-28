@@ -42,9 +42,8 @@ int vrfs_open(const char *path, struct fuse_file_info *fi) {
 	
 		return 0;
 	} else {
-		bcstrfree(p);
-		printf("File open DBG: phy can't be found\n", p);
-		return 1;
+		printf("File open DBG: phy can't be found\n");
+		return -ENOENT;
 	}
 }
 
