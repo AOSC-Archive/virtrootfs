@@ -118,7 +118,11 @@ int vrfs_resolve_dir(const char *virt_path, char** phy_components, pid_t pid) {
 
 char* vrfs_resolve(const char *virt_path, pid_t pid) {
 // get env file name
-	bstring env = bformat("/var/run/auch/env/%s",vrfs_resolve_index(pid)->data);
+	bstring index_f = vrfs_resolve_index(pid);
+	if (index_f == NULL) {
+		return NULL;
+	}
+	bstring env = bformat("/var/run/auch/env/%s",index_f->data);
 	if (env!=NULL) {
 		char* env_c = bstr2cstr(env, '\0');
 		printf("resolve file env - DBG: %s\n",env_c);
