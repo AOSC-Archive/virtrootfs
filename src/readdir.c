@@ -32,10 +32,6 @@ int vrfs_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t off,
     const struct fuse_context *context = fuse_get_context();
     const struct vrfs_data *data  = context->private_data;
     DIR *dir;
-    int rc = 0;
-    
-    filler(buf, ".", NULL, 0);
-    filler(buf, "..", NULL, 0);
     
     char *phy_components[1024];
     int phy_comp_count = vrfs_resolve_dir(path, phy_components, context->pid);
@@ -47,8 +43,14 @@ int vrfs_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t off,
 		u_pc = phy_components[i];
 		stat(u_pc, &finfo);
 		
-		filler(buf, strrchr(u_pc, '/')+sizeof(char), &finfo, 0);
+		bstring u_pc_b = bfromcstr(u_pc);
+		bstring file = bmidstr(u_pc_b, strlen(path)+1, u_pc_b->slen-strlen(path)-1);
+		filler(buf, file->data, &finfo, 0);
+		bdestroy(file);
+		bdestroy(u_pc_b);
+		
+		bcstrfree(u_pc);
 	}
     
-    return rc;
+    return 0;
 }

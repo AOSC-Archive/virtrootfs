@@ -69,6 +69,6 @@ static int vrfs_opt_proc(void *data, const char *arg, int key, struct fuse_args 
 int main(int argc, char *argv[]) {
     struct fuse_args args = FUSE_ARGS_INIT(argc, argv);
     struct vrfs_data data = {};
-    fuse_opt_parse(&args, &data, vrfs_opts, vrfs_opt_proc);
+    if (fuse_opt_parse(&args, &data, vrfs_opts, vrfs_opt_proc) == -1) return 1;
     return fuse_main(args.argc, args.argv, &vrfs_ops, &data);
 }

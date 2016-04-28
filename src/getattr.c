@@ -30,11 +30,13 @@ int vrfs_getattr(const char *path, struct stat *stbuf) {
 	
 	char *phy_path = vrfs_resolve(path, context->pid);
     if (phy_path != NULL) {
-    	if (stat(phy_path, stbuf)==0) {
+    	int rc = stat(phy_path, stbuf);
+    	if (rc==0) {
     		bcstrfree(phy_path);
     	    return 0;
     	}
     	bcstrfree(phy_path);
+    	return -rc;
     }
-    return 1;
+    return -1;
 }

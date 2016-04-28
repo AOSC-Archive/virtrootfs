@@ -41,16 +41,15 @@ bstring vrfs_resolve_index(pid_t pid) {
 	bcstrfree(env_c);
 // Get AUCH_ENV
 	struct bstrList *envs;
-	bstring env_buf;
 	if (NULL != (envs = bsplit (env_cxt, '\0'))) {
 		bdestroy(env_cxt);
 		bstring b_prefix = bfromcstr("AUCH_ENV=");
 		for (int i=0; i < envs->qty - 1; i++) {
 			bstring env_row = envs->entry[i];
-			if ((bstrncmp(env_row, b_prefix, 3)==0)) {
-				env_buf = bmidstr (env_row, blength(b_prefix), blength(env_row) - blength(b_prefix));
+			if ((bstrncmp(env_row, b_prefix, 9)==0)) {
+				bstring env_buf = bmidstr (env_row, blength(b_prefix), blength(env_row) - blength(b_prefix));
 				bstrListDestroy (envs);
-			bdestroy(b_prefix);
+				bdestroy(b_prefix);
 				return env_buf;
 			}
 		}
@@ -65,7 +64,12 @@ bstring vrfs_resolve_index(pid_t pid) {
 }
 
 int vrfs_resolve_dir(const char *virt_path, char** phy_components, pid_t pid) {
-	bstring env = bformat("/var/run/auch/env/%s",vrfs_resolve_index(pid)->data);
+	bstring index_f = vrfs_resolve_index(pid);
+	if (index_f == NULL) {
+		return 1;
+	}
+	bstring env = bformat("/var/run/auch/env/%s",index_f->data);
+	bdestroy(index_f);
 	if (env!=NULL) {
 		char* env_c = bstr2cstr(env, '\0');
 		printf("resolve dir env - DBG: %s\n",env_c);
@@ -97,6 +101,7 @@ int vrfs_resolve_dir(const char *virt_path, char** phy_components, pid_t pid) {
 	for (int i=0; i < envs->qty - 1; i++) {
 		env_row = bformat("/var/lib/auch/packages/%s%s", envs->entry[i]->data, virt_path);
 		char* env_row_c = bstr2cstr(env_row, '\n');
+		bdestroy(env_row);
 		if (access(env_row_c, 0)==0) {
 			DIR *dp;
 			if ((dp = opendir(env_row_c)) != NULL) {  
@@ -112,7 +117,7 @@ int vrfs_resolve_dir(const char *virt_path, char** phy_components, pid_t pid) {
 		}
 		bcstrfree(env_row_c);
 	}
-	bdestroy(env_row);
+	bstrListDestroy (envs);
 	return count;
 }
 
@@ -123,6 +128,7 @@ char* vrfs_resolve(const char *virt_path, pid_t pid) {
 		return NULL;
 	}
 	bstring env = bformat("/var/run/auch/env/%s",index_f->data);
+	bdestroy(index_f);
 	if (env!=NULL) {
 		char* env_c = bstr2cstr(env, '\0');
 		printf("resolve file env - DBG: %s\n",env_c);
@@ -149,16 +155,17 @@ char* vrfs_resolve(const char *virt_path, pid_t pid) {
 	struct bstrList *envs = bsplit(env_cxt, '\n');
 	bdestroy(env_cxt);
 // match file
-	bstring env_row;
 	for (int i=0; i < envs->qty - 1; i++) {
-		env_row = bformat("/var/lib/auch/packages/%s%s", envs->entry[i]->data, virt_path);
+		bstring env_row = bformat("/var/lib/auch/packages/%s%s", envs->entry[i]->data, virt_path);
 		char* env_row_c = bstr2cstr(env_row, '\n');
 		if (access(env_row_c, 0)==0) {
 			bdestroy(env_row);
+			bstrListDestroy (envs);
 			return env_row_c;
 		}
 		bcstrfree(env_row_c);
+		bdestroy(env_row);
 	}
-	bdestroy(env_row);
+	bstrListDestroy (envs);
 	return NULL;
 }
