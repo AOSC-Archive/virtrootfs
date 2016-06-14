@@ -112,9 +112,9 @@ int vrfs_resolve_dir(const char *virt_path, char** phy_components, pid_t pid, co
 		bdestroy(env_row);
 		if (access(env_row_c, 0)==0) {
 			DIR *dp;
-			if ((dp = opendir(env_row_c)) != NULL) {  
-    			struct dirent *entry;
-    			while ((entry = readdir(dp)) != NULL) {
+			if ((dp = opendir(env_row_c)) != NULL) {
+    		struct dirent *entry;
+    		while ((entry = readdir(dp)) != NULL) {
 					bstring p = bformat("%s/%s", virt_path, entry->d_name);
 					phy_components[count] = bstr2cstr(p,'\0');
 					bdestroy(p);
