@@ -26,6 +26,14 @@
 #include <string.h>
 #include <fuse.h>
 
+#if defined __linux__
+	// For pread()/pwrite()/utimensat()
+	#define _XOPEN_SOURCE 700
+
+	// For chroot
+	#define _DEFAULT_SOURCE 1
+#endif
+
 int vrfs_open(const char *path, struct fuse_file_info *fi) {
 	const struct fuse_context *context = fuse_get_context();
 	const struct vrfs_data *data  = context->private_data;
@@ -37,9 +45,9 @@ int vrfs_open(const char *path, struct fuse_file_info *fi) {
 		int fd = open(p, fi->flags);
 		bcstrfree(p);
 		if (fd == -1) return -errno;
-	
+
 		fi->fh = (unsigned long)fd;
-	
+
 		return 0;
 	} else {
 		printf("File open DBG: phy can't be found\n");
@@ -73,4 +81,3 @@ int vrfs_flush(const char *path, struct fuse_file_info *fi) {
 
 	return 0;
 }
-
