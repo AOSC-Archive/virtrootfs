@@ -31,9 +31,17 @@ bstring vrfs_resolve_index(pid_t pid) {
 	char* env_c = bstr2cstr(env, '\0');
 	bstring env_cxt;
 	bdestroy(env);
-	if (NULL != (fp = fopen (env_c, "r"))) {
-		env_cxt = bread ((bNread) fread, fp);
-		fclose (fp);
+	log("environ: %s\n", env_c);
+	int access_rc = access(env_c, 0);
+	if (access_rc == 0) {
+		fp = fopen(env_c, "rb");
+		if (fp != NULL) {
+			env_cxt = bread ((bNread) fread, fp);
+			fclose (fp);
+		} else {
+			bcstrfree(env_c);
+			return NULL;
+		}
 	} else {
 		bcstrfree(env_c);
 		return NULL;
@@ -44,7 +52,9 @@ bstring vrfs_resolve_index(pid_t pid) {
 	if (NULL != (envs = bsplit (env_cxt, '\0'))) {
 		bdestroy(env_cxt);
 		bstring b_prefix = bfromcstr("AUCH_ENV=");
-		for (int i=0; i < envs->qty - 1; i++) {
+		int quantity = envs->qty;
+		log("found %d envs", quantity);
+		for (int i=0; i < quantity - 1; i++) {
 			bstring env_row = envs->entry[i];
 			if ((bstrncmp(env_row, b_prefix, 9)==0)) {
 				bstring env_buf = bmidstr (env_row, blength(b_prefix), blength(env_row) - blength(b_prefix));
@@ -80,10 +90,10 @@ int vrfs_resolve_dir(const char *virt_path, char** phy_components, pid_t pid, co
 	bdestroy(index_f);
 	if (env!=NULL) {
 		char* env_c = bstr2cstr(env, '\0');
-		printf("resolve dir env - DBG: %s\n",env_c);
+		log("env: %s\n",env_c);
 		bcstrfree(env_c);
 	} else {
-		printf("resolve dir env - DBG: no AUCH_ENV found\n");
+		log("env: no AUCH_ENV found\n");
 		bdestroy(env);
 		return 0;
 	}
@@ -92,7 +102,7 @@ int vrfs_resolve_dir(const char *virt_path, char** phy_components, pid_t pid, co
 	char* env_c = bstr2cstr(env, '\0');
 	bdestroy(env);
 	bstring env_cxt;
-	if (NULL != (fp = fopen (env_c, "r"))) {
+	if (NULL != (fp = fopen (env_c, "rb"))) {
 		env_cxt = bread ((bNread) fread, fp);
 		fclose (fp);
 	} else {
@@ -119,9 +129,9 @@ int vrfs_resolve_dir(const char *virt_path, char** phy_components, pid_t pid, co
 					phy_components[count] = bstr2cstr(p,'\0');
 					bdestroy(p);
 					count++;
-    			}
-    		}
-    		closedir(dp);
+				}
+			}
+			closedir(dp);
 		}
 		bcstrfree(env_row_c);
 	}
@@ -139,10 +149,10 @@ char* vrfs_resolve(const char *virt_path, pid_t pid, const char* pool) {
 	bdestroy(index_f);
 	if (env!=NULL) {
 		char* env_c = bstr2cstr(env, '\0');
-		printf("resolve file env - DBG: %s\n",env_c);
+		log("env: %s\n",env_c);
 		bcstrfree(env_c);
 	} else {
-		printf("resolve file env - DBG: no AUCH_ENV found\n");
+		log("env: no AUCH_ENV found\n");
 		bdestroy(env);
 		return NULL;
 	}

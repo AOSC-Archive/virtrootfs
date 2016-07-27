@@ -18,6 +18,7 @@
 
 #include "virtrootfs.h"
 #include <dirent.h>
+#include <attr/xattr.h>
 #include <errno.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -50,7 +51,7 @@ int vrfs_open(const char *path, struct fuse_file_info *fi) {
 
 		return 0;
 	} else {
-		printf("File open DBG: phy can't be found\n");
+		log("phy can't be found\n");
 		return -ENOENT;
 	}
 }
@@ -80,4 +81,17 @@ int vrfs_flush(const char *path, struct fuse_file_info *fi) {
 	if (res == -1) return -errno;
 
 	return 0;
+}
+
+int vrfs_getxattr(const char *path, const char *name, char *value, size_t size) {
+	const struct fuse_context *context = fuse_get_context();
+	const struct vrfs_data *data  = context->private_data;
+
+	char *p = vrfs_resolve(path, context->pid, data->pool_path);
+
+	int res = lgetxattr(p, name, value, size);
+
+	if (res == -1) return -errno;
+
+	return res;
 }

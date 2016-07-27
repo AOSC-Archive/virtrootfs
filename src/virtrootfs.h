@@ -22,6 +22,8 @@
 
 #define FUSE_USE_VERSION 26
 #include <fuse.h>
+#include <time.h>
+#include <stdio.h>
 #include <bstrlib.h>
 
 struct vrfs_data {
@@ -31,6 +33,7 @@ struct vrfs_data {
 
 void *vrfs_init(struct fuse_conn_info *conn);
 int vrfs_getattr(const char *path, struct stat *stbuf);
+int vrfs_getxattr(const char *path, const char *name, char *value, size_t size);
 int vrfs_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t off, struct fuse_file_info *fi);
 char* vrfs_resolve(const char *virt_path, pid_t pid, const char* pool);
 int vrfs_resolve_dir(const char *virt_path, char** phy_components, pid_t pid, const char* pool);
@@ -43,3 +46,6 @@ void vrfs_assert_failed(const char *expr, const char *file, unsigned int line);
 #ifndef vrfs_assert
 #define vrfs_assert(expr) ((expr) ? (void) 0 : vrfs_assert_failed(#expr, __FILE__, __LINE__))
 #endif
+
+#define log(...) log_internal(__func__, __VA_ARGS__)
+void log_internal(const char* function_name, const char* format, ...);

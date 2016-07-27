@@ -29,28 +29,28 @@
 #include <fuse.h>
 
 int vrfs_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t off, struct fuse_file_info *fi) {
-    const struct fuse_context *context = fuse_get_context();
-    const struct vrfs_data *data  = context->private_data;
-    DIR *dir;
-    
-    char *phy_components[1024];
-    int phy_comp_count = vrfs_resolve_dir(path, phy_components, context->pid, data->pool_path);
-	
-    struct stat finfo;
-    
-    char *u_pc;
+	const struct fuse_context *context = fuse_get_context();
+	const struct vrfs_data *data  = context->private_data;
+	DIR *dir;
+
+	char *phy_components[1024];
+	int phy_comp_count = vrfs_resolve_dir(path, phy_components, context->pid, data->pool_path);
+
+	struct stat finfo;
+
+	char *u_pc;
 	for (int i = 0; i<phy_comp_count; i++) {
 		u_pc = phy_components[i];
 		stat(u_pc, &finfo);
-		
+
 		bstring u_pc_b = bfromcstr(u_pc);
 		bstring file = bmidstr(u_pc_b, strlen(path)+1, u_pc_b->slen-strlen(path)-1);
 		filler(buf, (const char*) file->data, &finfo, 0);
 		bdestroy(file);
 		bdestroy(u_pc_b);
-		
+
 		bcstrfree(u_pc);
 	}
-    
-    return 0;
+
+	return 0;
 }
